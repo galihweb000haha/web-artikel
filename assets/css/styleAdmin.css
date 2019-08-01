@@ -1,0 +1,113 @@
+
+body{
+    background-color: rgba(228, 221, 176, 0.918);
+}
+.navbar{
+    border-bottom:  3px solid orange;
+    position: absolute;
+    z-index: 999;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    min-width: 800px;
+}
+section#artikel{
+    margin-top: 53px;
+    margin-bottom: 250px;
+}
+section.navigasi{
+
+}
+.row li.nav-item:first-child{
+    background-color: #eee;
+    height: 45px;
+    line-height: 45px;
+}
+.row li.nav-item{
+    background-color: #666;
+    
+}
+
+.row li.nav-item a{
+    color: #eee;
+    height: 50px;
+  
+}
+.row li.navigasi:hover{
+    border-right:  3px solid orange;  
+    background-color: #555;
+    transition: .2s;
+    
+}
+img.icon{
+    width: 15px;
+}
+.row li.nav-item{
+    color: #333;
+    border-bottom: 1px solid #333;
+}
+div.gambarArtikel img{
+
+    width: 150px;
+    height: 100px;
+    display: inline;
+    
+}
+#tmblUpdate{
+    margin-top: 200px;
+}
+
+footer{
+
+    height: 200px;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    background-color: #777;
+    border-top: 3px solid orange;
+    z-index: 999;
+    box-shadow: 0px -2px 10px #000;
+
+}
+div.info{
+    /* max-width: 18rem; */
+    /* position: absolute; */
+    height: 150px;
+    margin-top: 25px;
+    background-color: #555;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+
+}
+div.info p.card-text{
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+}
+footer.row{
+    padding: 10px
+}
+.kuning{
+    background-color: lightgreen;
+} 
+.kotak {
+    width:25px;
+    height: 25px;
+    margin: 10px auto;
+}
+.merah{
+    background-color: red;
+}
+.hijau{
+    background-color: green;
+}
+.biru{
+    background-color: blue;
+}
+input[type=range]{
+    display: block;
+    margin: auto;
+}
+input[type=file]{
+    margin-top: 25px;
+}

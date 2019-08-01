@@ -5,60 +5,34 @@ if(isset($_SESSION['login'])){
   exit;
 }
 
-
-
+if(isset($_POST['submit'])){
+  if(kirimPesan($_POST) > 0){
+    echo "<script> alert('pesan telah terkirim ke admin, terima kasih!'); </script>";
+  } else{
+    echo "<script> alert('maaf, ada kesalahan saat mengirim pesan'); </script>";
+  }
+}
 
 
 
 $query = "SELECT * FROM kategori";
 $kategori = query($query);
 
-
-
-$query = "SELECT * FROM artikel";
-$artikel = query($query);
-
-$jumlahDataPerHalaman = 6;
-$jumlahData = count($artikel);
-$jumlahHalaman = ceil($jumlahData / $jumlahDataPerHalaman);
-$halamanAktif = (isset($_GET['page'])) ? $_GET['page'] : 1;
-
-$awalData = ($halamanAktif * $jumlahDataPerHalaman) - $jumlahDataPerHalaman;
-
-
-if(isset($_POST['submit'])){
-  $keyword = $_POST['keyword'];
-  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user WHERE judul_artikel LIKE '%$keyword%' ORDER BY id_artikel DESC LIMIT $awalData,$jumlahDataPerHalaman";
-
-} elseif(isset($_GET['kategori'])) {
-  $kategoriTerpilih = mysqli_real_escape_string($conn, $_GET['kategori']);
-  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel,artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user WHERE kategori = '$kategoriTerpilih' ORDER BY id_artikel DESC LIMIT $awalData,$jumlahDataPerHalaman";
-
-} else {
-
-  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user ORDER BY id_artikel DESC LIMIT $awalData,$jumlahDataPerHalaman";
-}
-$artikel = query($query);
-
-
-$isi_artikel = limit($artikel);
-// var_dump($isi_artikel);
-
-$query = "SELECT * FROM artikel ORDER BY hits DESC LIMIT 4";
-$populer = query($query);
-
-
 $query = "SELECT * FROM info";
 $info = query($query);
-
-
 $tahun = date('Y');
 // $tanggal = date('j');
 $bulanStr = date('M');
 $bulan = date('n');
 $hari = date('N');
-?>
 
+
+$query = "SELECT * FROM artikel ORDER BY hits DESC LIMIT 4";
+$populer = query($query);
+
+
+
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -66,9 +40,8 @@ $hari = date('N');
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Page Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
     <link rel="stylesheet" type="text/css" media="screen" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="assets/css/style.css" />    
+    <link rel="stylesheet" type="text/css" media="screen" href="assets/css/style.css">    
     
 </head>
 <body>
@@ -145,97 +118,62 @@ $hari = date('N');
 </section>
 
 
-<section >
+<section class="mb-4">
   <div class="container">
-    <h1 class="text-center artikel">Artikel Terbaru</h1>
+    <h1 class="text-center artikel">Contact Me</h1>
     <div class="row">
       <div class="col-sm-8">      
         <article>
-  
-<div class="container">
-
-<?php 
-
-if(!$artikel){
-  echo "<h3 class='text-muted'> Not Found </h3>";
-}
-$i = 0; 
-
-?>
-<div id="container">
-  <div class="row"> 
-  <?php foreach($artikel as $r) : ?>
-
-    <div class="col-md-6 sm-12">
-        <div class="card mb-3">
-            <img class="card-img-top img-thumbnail" src="assets/img/artikel/<?=$r['gambar_artikel'];?>" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title"><?= $r['judul_artikel'];?></h5>
-              <p class="card-text"><?=$isi_artikel[$i];?></p>
-            
-                <p class="card-text">
-                    <small class="text-muted">
-                      <img src="assets/ico/time.png" alt="" class="icon">
-                        <?="Last update ". $r['waktu_artikel'];?>
-                    </small>
-                  </p>
-                    <p class="card-text">
-                      <small class="text-muted">
-                        <img src="assets/ico/folder.png" class="icon">
-                         <?=$r['kategori'];?>
-                      </small>
-                    </p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                          <img src="assets/ico/user.png" class="icon">
-                           <?='Posted by '.$r['nama_pengguna'];?>
-                        </small>
-                    </p>
-              
-              <a href="details.php?id_artikel=<?=$r['id_artikel'];?>" class="btn btn-primary">Read more</a>
-              
-            </div>
+            <form class="contact" method="post">
+            <div class="form-group">
+            <label for="nama">Nama</label>
+            <input class="form-control" type="text" placeholder="Your Name" id="nama" name="nama">
           </div>
-    </div>
-  <?php $i++; ?>
-    <?php endforeach; ?>
+                <div class="form-group">
+                  <label for="email">Email address</label>
+                  <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email" name="email" autocomplete="off">
+                  <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea class="form-control" id="message" rows="3" name="isi_pesan"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" name="submit">Submit</button>
+              </form>
+
+
+              <p class="card-text">
+                  <small class="text-muted">
+                    <img src="assets/ico/telephone.png" class="icon">
+                      <?=$info[0]['telp'];?>
+                  </small>
+              </p>
+
+              <p class="card-text">
+                  <small class="text-muted">
+                    <img src="assets/ico/location.png" class="icon">
+                      <?=$info[0]['alamat'];?>
+                  </small>
+              </p>
+            
+
+
+
+  <div class="card">
+  <div class="card-body">
+      <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" src="https://www.google.com/maps/embed/v1/place?q=tegal&key=AIzaSyBA-AfikH9fawXcjKDLCh4fLK4MW2hNmsw" allowfullscreen></iframe>
+      </div>
   </div>
 </div>
 
 
-
-
-<nav aria-label="Page navigation example">
-  <ul class="pagination justify-content-end">
-  <?php if($halamanAktif > 1) :?>
-    <li class="page-item">
-  <?php else : ?>
-    <li class="page-item disabled">
-  <?php endif; ?>
-      <a class="page-link" href="?page=<?=$halamanAktif-1;?>">Previous</a>
-    </li>
-      <?php for($i = 1; $i <= $jumlahHalaman; $i++) :?>
-        <?php if($i == $halamanAktif) :?>
-          <li class="page-item"><a class="page-link" href="?page=<?=$i;?>" style="font-weight: bold"><?=$i;?></a></li>
-        <?php else : ?>
-          <li class="page-item"><a class="page-link" href="?page=<?=$i;?>"><?=$i;?></a></li>
-        <?php endif; ?>
-      <?php endfor; ?>
-    <?php if($halamanAktif == $jumlahHalaman) :?>
-    <li class="page-item disabled">
-    <?php else : ?>
-    <li class="page-item">
-    <?php endif; ?>
-      <a class="page-link" href="?page=<?=$halamanAktif+1;?>">Next</a>
-    </li>
-  </ul>
-</nav>
-
-</article>
-</div>
+        </article>
+    </div>
 
     <div class="col-sm-4">
-      <aside>
+    <aside>
         
         <form class="form-inline my-2 my-lg-0" method="post">
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="keyword" id="keyword">
@@ -271,13 +209,14 @@ $i = 0;
 </div>
 
     </div>
-      </aside>        
+      </aside>      
     </div>
   </div>
 </div>
 
 
 </section>
+
   <!--AddToAny BEGIN -->
   <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
     <a class="a2a_dd" href="https://www.addtoany.com/share"></a>
@@ -294,43 +233,49 @@ $i = 0;
 <span class="glyphicon glyphicon-search"></span>
 <i class="fa fa-diamond" style="font-size:100px"></i>
 <i class="fa fa-diamond" style="font-size:100px"></i> -->
-<!-- <i class="fa fa-coffe"></i> -->
+<i class="fa fa-coffe"></i>
+
+
+
+
 
 <!-- The content of your page would go here. -->
 <footer class="footer-distributed">
             <div class="footer-left">
-                <h3>Majelis<span><?=$info[0]['nama'];?></span></h3>
+                <h3>Company<span>logo</span></h3>
                 <p class="footer-links">
-                    <a href="index.php">Home</a>
+                    <a href="#">Home</a>
                     ·
-                    <a href="gallery.php">Galery</a>
+                    <a href="#">Blog</a>
                     ·
-                    <a href="profile.php">Profile</a>
+                    <a href="#">Pricing</a>
                     ·
-                    <a href="login.php">Login</a>
-                    
-                    
+                    <a href="#">About</a>
+                    ·
+                    <a href="#">Faq</a>
+                    ·
+                    <a href="#">Contact</a>
                 </p>
-                <p class="footer-company-name"><?= 'Majelis_'.$info[0]['nama'];?> &copy; 2019</p>
+                <p class="footer-company-name">Company Name &copy; 2017</p>
             </div>
             <div class="footer-center">
                 <div>
                     <i class="fa fa-map-marker"></i>
-                    <p><?=$info[0]['alamat'];?></p>
+                    <p><span>21 Revolution Street</span> Paris, France</p>
                 </div>
                 <div>
                     <i class="fa fa-phone"></i>
-                    <p><?=$info[0]['telp'];?></p>
+                    <p>+1 555 123456</p>
                 </div>
                 <div>
                     <i class="fa fa-envelope"></i>
-                    <p><a href="mailto:support@company.com"><?= $info[0]['email'];?></a></p>
+                    <p><a href="mailto:support@company.com">support@company.com</a></p>
                 </div>
             </div>
             <div class="footer-right">
                 <p class="footer-company-about">
-                    <span>About Us</span>
-                    <?= substr($info[0]['deskripsi'],0,100);?> ...
+                    <span>About the company</span>
+                    Lorem ipsum dolor sit amet, consectateur adispicing elit. Fusce euismod convallis velit, eu auctor lacus vehicula sit amet.
                 </p>
                 <div class="footer-icons">
                     <a href="#"><i class="fa fa-facebook"></i></a>
@@ -343,11 +288,15 @@ $i = 0;
 
 
 
+
 <script async src="https://static.addtoany.com/menu/page.js"></script>
 <!--AddToAny END -->
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 
 <script src="assets/js/jquery-3.3.1.min.js"></script>    
 <script src="assets/js/bootstrap.min.js"></script>
 <script src="assets/js/script.js"></script>
+
 </body>
 </html>

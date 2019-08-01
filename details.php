@@ -18,6 +18,7 @@ $kategori = query($query);
 $query = "SELECT * FROM artikel";
 $artikel = query($query);
 
+
 $jumlahDataPerHalaman = 6;
 $jumlahData = count($artikel);
 $jumlahHalaman = ceil($jumlahData / $jumlahDataPerHalaman);
@@ -28,21 +29,35 @@ $awalData = ($halamanAktif * $jumlahDataPerHalaman) - $jumlahDataPerHalaman;
 
 if(isset($_POST['submit'])){
   $keyword = $_POST['keyword'];
-  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user WHERE judul_artikel LIKE '%$keyword%' ORDER BY id_artikel DESC LIMIT $awalData,$jumlahDataPerHalaman";
+  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user WHERE judul_artikel LIKE '%$keyword%' LIMIT $awalData,$jumlahDataPerHalaman";
 
 } elseif(isset($_GET['kategori'])) {
   $kategoriTerpilih = mysqli_real_escape_string($conn, $_GET['kategori']);
-  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel,artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user WHERE kategori = '$kategoriTerpilih' ORDER BY id_artikel DESC LIMIT $awalData,$jumlahDataPerHalaman";
+  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user WHERE kategori = '$kategoriTerpilih' LIMIT $awalData,$jumlahDataPerHalaman";
 
 } else {
 
-  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel, artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user ORDER BY id_artikel DESC LIMIT $awalData,$jumlahDataPerHalaman";
+  $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel,  artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user LIMIT $awalData,$jumlahDataPerHalaman";
+}
+if(isset($_GET['id_artikel'])){
+    $id_artikel = $_GET['id_artikel'];
+    $query = "SELECT user.nama_pengguna, kategori.kategori, artikel.judul_artikel, artikel.waktu_artikel,  artikel.id_artikel, artikel.isi_artikel,artikel.gambar_artikel FROM artikel INNER JOIN kategori ON kategori.id_kategori=artikel.id_kategori INNER JOIN user ON user.id_user=artikel.id_user WHERE id_artikel = $id_artikel LIMIT $awalData,$jumlahDataPerHalaman";
+
+    mysqli_query($conn, "UPDATE artikel SET hits = hits+1 WHERE id_artikel = $id_artikel");
+
 }
 $artikel = query($query);
 
 
+
 $isi_artikel = limit($artikel);
 // var_dump($isi_artikel);
+
+$tahun = date('Y');
+// $tanggal = date('j');
+$bulanStr = date('M');
+$bulan = date('n');
+$hari = date('N');
 
 $query = "SELECT * FROM artikel ORDER BY hits DESC LIMIT 4";
 $populer = query($query);
@@ -51,14 +66,7 @@ $populer = query($query);
 $query = "SELECT * FROM info";
 $info = query($query);
 
-
-$tahun = date('Y');
-// $tanggal = date('j');
-$bulanStr = date('M');
-$bulan = date('n');
-$hari = date('N');
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -122,14 +130,9 @@ $hari = date('N');
 
 
 
-
-
-
-
-
 <!-- Jumbotron -->
 <section>
-<?php $index = 'background'; ?>
+  <?php $index = 'background'; ?>
   <div class="jumbotron jumbotron-fluid" style="background-image:url('assets/img/info/background/<?=$info[0][$index];?>');">
     <div class="container">
       <div class="container text-center">
@@ -147,89 +150,33 @@ $hari = date('N');
 
 <section >
   <div class="container">
-    <h1 class="text-center artikel">Artikel Terbaru</h1>
+    <h1 class="text-center artikel"><?=$artikel[0]['judul_artikel'];?></h1>
     <div class="row">
       <div class="col-sm-8">      
-        <article>
-  
-<div class="container">
-
-<?php 
-
-if(!$artikel){
-  echo "<h3 class='text-muted'> Not Found </h3>";
-}
-$i = 0; 
-
-?>
-<div id="container">
-  <div class="row"> 
-  <?php foreach($artikel as $r) : ?>
-
-    <div class="col-md-6 sm-12">
-        <div class="card mb-3">
-            <img class="card-img-top img-thumbnail" src="assets/img/artikel/<?=$r['gambar_artikel'];?>" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title"><?= $r['judul_artikel'];?></h5>
-              <p class="card-text"><?=$isi_artikel[$i];?></p>
-            
-                <p class="card-text">
+<article>
+<img class="card-img-top" src="assets/img/artikel/<?=$artikel[0]['gambar_artikel'];?>" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title"><?=$artikel[0]['judul_artikel'];?></h5>
+                    <p class="card-text"><?=$artikel[0]['isi_artikel'];?></p>
+                    <p class="card-text">
                     <small class="text-muted">
                       <img src="assets/ico/time.png" alt="" class="icon">
-                        <?="Last update ". $r['waktu_artikel'];?>
+                        <?="Last update ". $artikel[0]['waktu_artikel'];?>
                     </small>
                   </p>
                     <p class="card-text">
                       <small class="text-muted">
                         <img src="assets/ico/folder.png" class="icon">
-                         <?=$r['kategori'];?>
+                         <?=$artikel[0]['kategori'];?>
                       </small>
                     </p>
                     <p class="card-text">
                         <small class="text-muted">
                           <img src="assets/ico/user.png" class="icon">
-                           <?='Posted by '.$r['nama_pengguna'];?>
+                           <?='Posted by '.$artikel[0]['nama_pengguna'];?>
                         </small>
                     </p>
-              
-              <a href="details.php?id_artikel=<?=$r['id_artikel'];?>" class="btn btn-primary">Read more</a>
-              
-            </div>
-          </div>
-    </div>
-  <?php $i++; ?>
-    <?php endforeach; ?>
-  </div>
-</div>
-
-
-
-
-<nav aria-label="Page navigation example">
-  <ul class="pagination justify-content-end">
-  <?php if($halamanAktif > 1) :?>
-    <li class="page-item">
-  <?php else : ?>
-    <li class="page-item disabled">
-  <?php endif; ?>
-      <a class="page-link" href="?page=<?=$halamanAktif-1;?>">Previous</a>
-    </li>
-      <?php for($i = 1; $i <= $jumlahHalaman; $i++) :?>
-        <?php if($i == $halamanAktif) :?>
-          <li class="page-item"><a class="page-link" href="?page=<?=$i;?>" style="font-weight: bold"><?=$i;?></a></li>
-        <?php else : ?>
-          <li class="page-item"><a class="page-link" href="?page=<?=$i;?>"><?=$i;?></a></li>
-        <?php endif; ?>
-      <?php endfor; ?>
-    <?php if($halamanAktif == $jumlahHalaman) :?>
-    <li class="page-item disabled">
-    <?php else : ?>
-    <li class="page-item">
-    <?php endif; ?>
-      <a class="page-link" href="?page=<?=$halamanAktif+1;?>">Next</a>
-    </li>
-  </ul>
-</nav>
+               </div>
 
 </article>
 </div>
@@ -237,7 +184,7 @@ $i = 0;
     <div class="col-sm-4">
       <aside>
         
-        <form class="form-inline my-2 my-lg-0" method="post">
+        <form class="form-inline my-2 my-lg-0" method="post" action="index.php">
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="keyword" id="keyword">
             <button class="btn btn-outline-primary my-2 my-sm-0" type="submit" name="submit">Search</button>
         </form>
@@ -248,6 +195,7 @@ $i = 0;
             <a class="nav-link" href="index.php?kategori=<?=$r['kategori'];?>"><?= $r['kategori'];?></a>
            <?php endforeach; ?>
         </nav>
+    </div>
 
 
 <div class="card border-dark mb-3 mt-3" style="max-width: 18rem;">
@@ -270,7 +218,7 @@ $i = 0;
   </div>
 </div>
 
-    </div>
+
       </aside>        
     </div>
   </div>
@@ -278,6 +226,7 @@ $i = 0;
 
 
 </section>
+
   <!--AddToAny BEGIN -->
   <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
     <a class="a2a_dd" href="https://www.addtoany.com/share"></a>
@@ -288,49 +237,43 @@ $i = 0;
   </div>
 
 
-<!-- <span class="glyphicon glyphicon-envelope"></span>
-<span class="glyphicon glyphicon-print"></span>
-<span class="glyphicon glyphicon-heart"></span>
-<span class="glyphicon glyphicon-search"></span>
-<i class="fa fa-diamond" style="font-size:100px"></i>
-<i class="fa fa-diamond" style="font-size:100px"></i> -->
-<!-- <i class="fa fa-coffe"></i> -->
-
 <!-- The content of your page would go here. -->
 <footer class="footer-distributed">
             <div class="footer-left">
-                <h3>Majelis<span><?=$info[0]['nama'];?></span></h3>
+                <h3>Company<span>logo</span></h3>
                 <p class="footer-links">
-                    <a href="index.php">Home</a>
+                    <a href="#">Home</a>
                     ·
-                    <a href="gallery.php">Galery</a>
+                    <a href="#">Blog</a>
                     ·
-                    <a href="profile.php">Profile</a>
+                    <a href="#">Pricing</a>
                     ·
-                    <a href="login.php">Login</a>
-                    
-                    
+                    <a href="#">About</a>
+                    ·
+                    <a href="#">Faq</a>
+                    ·
+                    <a href="#">Contact</a>
                 </p>
-                <p class="footer-company-name"><?= 'Majelis_'.$info[0]['nama'];?> &copy; 2019</p>
+                <p class="footer-company-name">Company Name &copy; 2017</p>
             </div>
             <div class="footer-center">
                 <div>
                     <i class="fa fa-map-marker"></i>
-                    <p><?=$info[0]['alamat'];?></p>
+                    <p><span>21 Revolution Street</span> Paris, France</p>
                 </div>
                 <div>
                     <i class="fa fa-phone"></i>
-                    <p><?=$info[0]['telp'];?></p>
+                    <p>+1 555 123456</p>
                 </div>
                 <div>
                     <i class="fa fa-envelope"></i>
-                    <p><a href="mailto:support@company.com"><?= $info[0]['email'];?></a></p>
+                    <p><a href="mailto:support@company.com">support@company.com</a></p>
                 </div>
             </div>
             <div class="footer-right">
                 <p class="footer-company-about">
-                    <span>About Us</span>
-                    <?= substr($info[0]['deskripsi'],0,100);?> ...
+                    <span>About the company</span>
+                    Lorem ipsum dolor sit amet, consectateur adispicing elit. Fusce euismod convallis velit, eu auctor lacus vehicula sit amet.
                 </p>
                 <div class="footer-icons">
                     <a href="#"><i class="fa fa-facebook"></i></a>
@@ -340,8 +283,6 @@ $i = 0;
                 </div>
             </div>
         </footer>
-
-
 
 <script async src="https://static.addtoany.com/menu/page.js"></script>
 <!--AddToAny END -->
